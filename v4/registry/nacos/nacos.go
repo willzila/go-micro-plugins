@@ -19,6 +19,8 @@ import (
 type nacosRegistry struct {
 	client naming_client.INamingClient
 	opts   registry.Options
+	ropts  *registry.RegisterOptions
+	dropts *registry.DeregisterOptions
 }
 
 func init() {
@@ -121,8 +123,19 @@ func (n *nacosRegistry) Options() registry.Options {
 	return n.opts
 }
 
+func (n *nacosRegistry) SetRegisterOptions(opts *registry.RegisterOptions) {
+	n.ropts = opts
+}
+
+func (n *nacosRegistry) SetDeRegisterOptions(opts *registry.DeregisterOptions) {
+	n.dropts = opts
+}
+
 func (n *nacosRegistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
 	var options registry.RegisterOptions
+	if n.ropts != nil {
+		options = *n.ropts
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -155,6 +168,9 @@ func (n *nacosRegistry) Register(s *registry.Service, opts ...registry.RegisterO
 
 func (n *nacosRegistry) Deregister(s *registry.Service, opts ...registry.DeregisterOption) error {
 	var options registry.DeregisterOptions
+	if n.dropts != nil {
+		options = *n.dropts
+	}
 	for _, o := range opts {
 		o(&options)
 	}
